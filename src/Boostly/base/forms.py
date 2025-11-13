@@ -4,29 +4,31 @@ from django.core.exceptions import ValidationError
 from .models import Recognition, Redemption, CreditBalance
 
 
-class RecognitionForm(forms.ModelForm):
+class RecognitionForm(forms.Form):
+    """Custom form for recognition (not ModelForm to avoid validation issues)"""
     to_student = forms.ModelChoiceField(
         queryset=User.objects.none(),
         widget=forms.Select(attrs={'class': 'form-control'}),
         label='Recognize Student'
     )
-    
-    class Meta:
-        model = Recognition
-        fields = ['to_student', 'credits', 'message']
-        widgets = {
-            'credits': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': 1,
-                'max': 100,
-                'type': 'number'
-            }),
-            'message': forms.Textarea(attrs={
-                'class': 'form-control',
-                'rows': 4,
-                'placeholder': 'What did this student do well?'
-            }),
-        }
+    credits = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': 1,
+            'max': 100,
+            'type': 'number'
+        }),
+        min_value=1,
+        max_value=100
+    )
+    message = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 4,
+            'placeholder': 'What did this student do well?'
+        }),
+        max_length=500
+    )
     
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -45,6 +47,10 @@ class RecognitionForm(forms.ModelForm):
         
         if not credits or not to_student:
             return cleaned_data
+        
+        # Validate self-recognition
+        if to_student == self.user:
+            raise ValidationError('You cannot recognize yourself.')
         
         # Get or create sender's balance
         balance = CreditBalance.objects.get_or_create(student=self.user)[0]
@@ -69,18 +75,18 @@ class RecognitionForm(forms.ModelForm):
         return cleaned_data
 
 
-class RedemptionForm(forms.ModelForm):
-    class Meta:
-        model = Redemption
-        fields = ['credits_redeemed']
-        widgets = {
-            'credits_redeemed': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'min': 1,
-                'type': 'number',
-                'placeholder': 'Enter number of credits to redeem'
-            }),
-        }
+class RedemptionForm(forms.Form):
+    """Custom form for redemption (not ModelForm to avoid validation issues)"""
+    credits_redeemed = forms.IntegerField(
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': 1,
+            'type': 'number',
+            'placeholder': 'Enter number of credits to redeem'
+        }),
+        min_value=1,
+        label='Credits to Redeem'
+    )
     
     def __init__(self, *args, balance=None, **kwargs):
         super().__init__(*args, **kwargs)

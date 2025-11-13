@@ -1,0 +1,53 @@
+{% extends "base/base.html" %}
+
+{% block title %}Login - Student Recognition System{% endblock %}
+
+{% block content %}
+<div class="row mb-4 mt-5">
+    <div class="col-md-6 mx-auto">
+        <div class="card card-custom bg-white">
+            <div class="card-body">
+                <h2 class="text-center mb-4">Login to Boostly</h2>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <strong>Username</strong>
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" required autofocus>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <strong>Password</strong>
+                        </label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-custom w-100">
+                        Login
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="alert alert-info">
+                    <h6 class="alert-heading">Test Credentials:</h6>
+                    <p class="mb-2"><strong>Username:</strong> alice_smith</p>
+                    <p class="mb-2"><strong>Username:</strong> bob_jones</p>
+                    <p class="mb-2"><strong>Username:</strong> carol_williams</p>
+                    <p class="mb-0"><strong>Password:</strong> test123 (for all test users)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

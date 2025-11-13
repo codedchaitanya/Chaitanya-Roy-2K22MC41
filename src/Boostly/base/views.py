@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Count, Q, Sum
@@ -41,19 +42,14 @@ def recognize(request):
         form = RecognitionForm(request.POST, user=request.user)
         if form.is_valid():
             try:
-                # Get form data
-                to_student = form.cleaned_data.get('to_student')
-                credits = form.cleaned_data.get('credits')
-                message = form.cleaned_data.get('message')
-                
-                # Create recognition with from_student
-                recognition = Recognition(
+                # Create recognition - don't use form.save() directly
+                # Instead extract cleaned data and create instance manually
+                recognition = Recognition.objects.create(
                     from_student=request.user,
-                    to_student=to_student,
-                    credits=credits,
-                    message=message
+                    to_student=form.cleaned_data['to_student'],
+                    credits=form.cleaned_data['credits'],
+                    message=form.cleaned_data['message']
                 )
-                recognition.save()
                 messages.success(request, f'Recognition sent! {recognition.credits} credits transferred.')
                 return redirect('dashboard')
             except Exception as e:
@@ -125,10 +121,13 @@ def redeem_credits(request):
         form = RedemptionForm(request.POST, balance=balance)
         if form.is_valid():
             try:
-                redemption = form.save(commit=False)
-                redemption.student = request.user
-                redemption.status = 'completed'
-                redemption.save()
+                # Create redemption directly with all fields
+                redemption = Redemption.objects.create(
+                    student=request.user,
+                    credits_redeemed=form.cleaned_data['credits_redeemed'],
+                    rupees_value=form.cleaned_data['credits_redeemed'] * 5,
+                    status='completed'
+                )
                 messages.success(
                     request,
                     f'Success! {redemption.credits_redeemed} credits redeemed for ₹{redemption.rupees_value}'
@@ -159,8 +158,11 @@ def leaderboard(request):
     """Display leaderboard of top recipients"""
     from django.db.models import Count, Sum, Q
     
-    # Get all users
-    all_users = User.objects.filter(is_active=True).order_by('-id')
+    # Get all active users (excluding superusers and staff)
+    all_users = User.objects.filter(
+        is_active=True,
+        is_superuser=False
+    ).order_by('first_name', 'last_name')
     
     leaderboard_data = []
     
@@ -178,18 +180,17 @@ def leaderboard(request):
             recognition__to_student=student
         ).count()
         
-        # Only include students who have some activity
-        if credits_received > 0 or recognition_count > 0 or endorsement_count > 0:
-            leaderboard_data.append({
-                'student': student,
-                'credits_received': credits_received,
-                'recognition_count': recognition_count,
-                'endorsement_count': endorsement_count,
-            })
+        # Include all users regardless of activity
+        leaderboard_data.append({
+            'student': student,
+            'credits_received': credits_received,
+            'recognition_count': recognition_count,
+            'endorsement_count': endorsement_count,
+        })
     
-    # Sort by credits received (descending), then by student ID (ascending)
+    # Sort by credits received (descending), then by recognition count, then by student name
     leaderboard_data.sort(
-        key=lambda x: (-x['credits_received'], x['student'].id)
+        key=lambda x: (-x['credits_received'], -x['recognition_count'], x['student'].first_name)
     )
     
     context = {
@@ -203,3 +204,33 @@ def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'base/home.html')
+
+
+def user_login(request):
+    """Login page for regular users"""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            # Create credit balance if doesn't exist
+            CreditBalance.objects.get_or_create(student=user)
+            messages.success(request, f'Welcome back, {user.first_name or user.username}!')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'base/login.html')
+
+
+def user_logout(request):
+    """Logout view"""
+    from django.contrib.auth import logout
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('home')
