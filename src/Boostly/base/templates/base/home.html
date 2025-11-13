@@ -1,0 +1,44 @@
+{% extends "base/base.html" %}
+
+{% block title %}Home - Student Recognition System{% endblock %}
+
+{% block content %}
+<div class="text-center text-white py-5">
+    <h1 class="display-4 fw-bold mb-4">Boostly - Recognition System</h1>
+    <p class="lead mb-4">Recognize, Endorse, and Reward Your Peers</p>
+    
+    {% if user.is_authenticated %}
+        <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg btn-custom">Go to Dashboard</a>
+    {% else %}
+        <div class="row mt-5">
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom">
+                    <div class="card-body">
+                        <h5 class="card-title">Recognize</h5>
+                        <p class="card-text">Recognize your peers and transfer credits for great work</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom">
+                    <div class="card-body">
+                        <h5 class="card-title">Endorse</h5>
+                        <p class="card-text">Endorse recognitions to show your support</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card card-custom">
+                    <div class="card-body">
+                        <h5 class="card-title">Redeem</h5>
+                        <p class="card-text">Redeem credits for vouchers at Rs 5 per credit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="mt-5">
+            <a href="/admin/login/" class="btn btn-success btn-lg btn-custom">Admin Login</a>
+        </p>
+    {% endif %}
+</div>
+{% endblock %}

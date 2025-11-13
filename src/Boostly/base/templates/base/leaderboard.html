@@ -1,0 +1,81 @@
+{% extends "base/base.html" %}
+
+{% block title %}Leaderboard - Student Recognition System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="text-white mb-4">Leaderboard - Top Recipients</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-custom bg-white">
+            <div class="card-body">
+                {% if leaderboard %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center" style="width: 60px;">Rank</th>
+                                    <th>Student Name</th>
+                                    <th class="text-center">Credits Received</th>
+                                    <th class="text-center">Recognition Count</th>
+                                    <th class="text-center">Endorsements</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in leaderboard %}
+                                    <tr class="{% if forloop.counter <= 3 %}table-success{% endif %}">
+                                        <td class="text-center">
+                                            {% if forloop.counter == 1 %}
+                                                <span class="badge bg-warning text-dark fs-6">1st</span>
+                                            {% elif forloop.counter == 2 %}
+                                                <span class="badge bg-secondary fs-6">2nd</span>
+                                            {% elif forloop.counter == 3 %}
+                                                <span class="badge bg-danger fs-6">3rd</span>
+                                            {% else %}
+                                                <span class="badge bg-info">{{ forloop.counter }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <strong>{{ item.student.first_name|default:item.student.username }} {{ item.student.last_name }}</strong>
+                                            <br>
+                                            <small class="text-muted">@{{ item.student.username }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary fs-6">{{ item.credits_received }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-info fs-6">{{ item.recognition_count }}</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-warning text-dark fs-6">{{ item.endorsement_count }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-info mt-4">
+                        <h6 class="alert-heading">Ranking System:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Credits Received:</strong> Sum of all credits received from recognitions</li>
+                            <li><strong>Recognition Count:</strong> Number of times a student has been recognized</li>
+                            <li><strong>Endorsements:</strong> Total number of endorsements received across all recognitions</li>
+                            <li><strong>Sorting:</strong> By total credits received (highest first), then by student ID</li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info text-center py-5">
+                        <h5>No Recognition Data Yet</h5>
+                        <p class="mb-0">Start recognizing your peers to appear on the leaderboard!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

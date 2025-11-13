@@ -1,0 +1,115 @@
+{% extends "base/base.html" %}
+
+{% block title %}Dashboard - Student Recognition System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="text-white mb-4">Welcome, {{ user.first_name|default:user.username }}!</h2>
+    </div>
+</div>
+
+<!-- Credit Balance Card -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card card-custom bg-white">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Your Credit Balance</h5>
+                <div class="row">
+                    <div class="col-md-6 stat-card">
+                        <div class="stat-number">{{ balance.available_credits }}</div>
+                        <div class="stat-label">Available Credits</div>
+                    </div>
+                    <div class="col-md-6 stat-card">
+                        <div class="stat-number">{{ monthly_limit_remaining }}</div>
+                        <div class="stat-label">Monthly Limit Left</div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-6 stat-card">
+                        <div class="stat-number">{{ balance.total_received }}</div>
+                        <div class="stat-label">Total Received</div>
+                    </div>
+                    <div class="col-md-6 stat-card">
+                        <div class="stat-number">{{ balance.monthly_sent }}</div>
+                        <div class="stat-label">Sent This Month</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card card-custom bg-white">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Quick Actions</h5>
+                <a href="{% url 'recognize' %}" class="btn btn-primary btn-custom w-100 mb-2">
+                    Recognize Someone
+                </a>
+                <a href="{% url 'redeem' %}" class="btn btn-success btn-custom w-100 mb-2">
+                    Redeem Credits
+                </a>
+                <a href="{% url 'leaderboard' %}" class="btn btn-info btn-custom w-100">
+                    View Leaderboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Section -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-custom bg-white">
+            <div class="card-body">
+                <h5 class="card-title">Recognitions Given</h5>
+                {% if recognitions_given %}
+                    <div class="list-group">
+                        {% for recognition in recognitions_given %}
+                            <a href="{% url 'recognition_detail' recognition.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">To: {{ recognition.to_student.first_name|default:recognition.to_student.username }}</h6>
+                                        <p class="mb-0 small text-muted">{{ recognition.message|truncatewords:10 }}</p>
+                                    </div>
+                                    <span class="badge bg-primary">{{ recognition.credits }} Credits</span>
+                                </div>
+                                <small class="text-muted">{{ recognition.created_at|date:"M d, Y" }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recognitions given yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card card-custom bg-white">
+            <div class="card-body">
+                <h5 class="card-title">Recognitions Received</h5>
+                {% if recognitions_received %}
+                    <div class="list-group">
+                        {% for recognition in recognitions_received %}
+                            <a href="{% url 'recognition_detail' recognition.id %}" class="list-group-item list-group-item-action">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">From: {{ recognition.from_student.first_name|default:recognition.from_student.username }}</h6>
+                                        <p class="mb-0 small text-muted">{{ recognition.message|truncatewords:10 }}</p>
+                                    </div>
+                                    <span class="badge bg-success">{{ recognition.credits }} Credits</span>
+                                </div>
+                                <small class="text-muted">{{ recognition.created_at|date:"M d, Y" }}</small>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No recognitions received yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

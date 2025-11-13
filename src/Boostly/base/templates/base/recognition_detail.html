@@ -1,0 +1,92 @@
+{% extends "base/base.html" %}
+
+{% block title %}Recognition Details - Student Recognition System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary btn-sm mb-3">Back</a>
+        <h2 class="text-white">Recognition Details</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <!-- Recognition Card -->
+        <div class="card card-custom bg-white mb-4">
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5 class="text-muted">From</h5>
+                        <h4>{{ recognition.from_student.first_name|default:recognition.from_student.username }}</h4>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <h5 class="text-muted">To</h5>
+                        <h4>{{ recognition.to_student.first_name|default:recognition.to_student.username }}</h4>
+                    </div>
+                </div>
+
+                <div class="alert alert-primary">
+                    <h6 class="alert-heading">Credits Transferred</h6>
+                    <h3 class="mb-0">{{ recognition.credits }} Credits</h3>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-muted">Message</h6>
+                    <p class="lead">{{ recognition.message }}</p>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-muted">Created</small>
+                        <p>{{ recognition.created_at|date:"F d, Y g:i A" }}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <small class="text-muted">Recognition ID</small>
+                        <p>#{{ recognition.id }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Endorsements Section -->
+        <div class="card card-custom bg-white">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Endorsements ({{ endorsement_count }})</h5>
+
+                {% if user.is_authenticated and not user_endorsed %}
+                    <form method="post" action="{% url 'endorse' recognition.id %}" class="mb-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-custom w-100">
+                            Endorse This Recognition
+                        </button>
+                    </form>
+                {% elif user.is_authenticated and user_endorsed %}
+                    <div class="alert alert-success mb-4">
+                        You have endorsed this recognition
+                    </div>
+                {% endif %}
+
+                {% if endorsements %}
+                    <div class="list-group">
+                        {% for endorsement in endorsements %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">{{ endorsement.endorser.first_name|default:endorsement.endorser.username }}</h6>
+                                    </div>
+                                    <small class="text-muted">{{ endorsement.created_at|date:"M d, Y" }}</small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">No endorsements yet. Be the first to endorse!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
