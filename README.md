@@ -2,7 +2,17 @@
 
 A Django-based recognition and credit management platform for students.
 
+## Demo
+<img width="1440" height="900" alt="Screenshot 2025-11-13 at 9 43 59 AM" src="https://github.com/user-attachments/assets/7243b7fa-a865-4390-9a9a-8df63d74b7b4" />
+<img width="1440" height="900" alt="Screenshot 2025-11-13 at 9 44 12 AM" src="https://github.com/user-attachments/assets/8921bafc-b1c3-477a-a64d-a8959d91e91b" />
+<img width="1440" height="900" alt="Screenshot 2025-11-13 at 9 44 20 AM" src="https://github.com/user-attachments/assets/b7c5def2-df96-4f57-8064-6dcf919bb6cf" />
+<img width="1440" height="900" alt="Screenshot 2025-11-13 at 9 44 28 AM" src="https://github.com/user-attachments/assets/bcdd8a64-07bc-4d60-93fa-4c4d7c01ea98" />
+<img width="1440" height="900" alt="Screenshot 2025-11-13 at 9 41 04 AM" src="https://github.com/user-attachments/assets/66845a67-019e-4486-898f-7c963315ba5b" />
+
+
 ## 📋 Table of Contents
+
+
 
 - [Overview](#overview)
 - [Quick Start](#quick-start)
